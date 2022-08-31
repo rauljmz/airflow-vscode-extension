@@ -5,6 +5,7 @@ import { DagTreeItem } from './dagTreeItem';
 import { DagTreeDataProvider } from './dagTreeDataProvider';
 import * as ui from './ui';
 import { Api } from './api';
+import { workspace } from 'vscode';
 
 export class DagTreeView {
 
@@ -348,9 +349,11 @@ export class DagTreeView {
 	saveState() {
 		ui.logToOutput('DagTreeView.saveState Started');
 		try {
-			this.context.globalState.update('apiUrl', Api.apiUrl);
-			this.context.globalState.update('apiUserName', Api.apiUserName);
-			this.context.globalState.update('apiPassword', Api.apiPassword);
+			const airflowConfigSection = workspace.getConfiguration('airflow');
+
+			airflowConfigSection.update('apiUrl', Api.apiUrl, false);
+			airflowConfigSection.update('apiUserName', Api.apiUserName, false);
+			airflowConfigSection.update('apiPassword', Api.apiPassword, false);
 			this.context.globalState.update('filterString', this.filterString);
 		} catch (error) {
 			ui.logToOutput("dagTreeView.saveState Error !!!", error);
@@ -360,13 +363,14 @@ export class DagTreeView {
 	loadState() {
 		ui.logToOutput('DagTreeView.loadState Started');
 		try {
-			let apiUrlTemp: string = this.context.globalState.get('apiUrl');
+			const airflowConfigSection = workspace.getConfiguration('airflow');
+			let apiUrlTemp: string = airflowConfigSection.get('apiUrl');
 			if (apiUrlTemp) { Api.apiUrl = apiUrlTemp; }
 
-			let apiUserNameTemp: string = this.context.globalState.get('apiUserName');
+			let apiUserNameTemp: string = airflowConfigSection.get('apiUserName');
 			if (apiUserNameTemp) { Api.apiUserName = apiUserNameTemp; }
 
-			let apiPasswordTemp: string = this.context.globalState.get('apiPassword');
+			let apiPasswordTemp: string = airflowConfigSection.get('apiPassword');
 			if (apiPasswordTemp) { Api.apiPassword = apiPasswordTemp; }
 
 			let filterStringTemp: string = this.context.globalState.get('filterString');
